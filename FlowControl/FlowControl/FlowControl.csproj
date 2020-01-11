@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DC82CB5B-EEEC-4B2C-B6FA-EF60F3CD97C9}</ProjectGuid>
+    <ProjectGuid>{926B5687-D37F-43B3-A0D7-DEF78DB556EF}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WinFormPractice_1</RootNamespace>
-    <AssemblyName>WinFormPractice_1</AssemblyName>
+    <RootNamespace>FlowControl</RootNamespace>
+    <AssemblyName>FlowControl</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

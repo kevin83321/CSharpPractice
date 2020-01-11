@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DC82CB5B-EEEC-4B2C-B6FA-EF60F3CD97C9}</ProjectGuid>
+    <ProjectGuid>{F8F7C8BD-B235-4863-854B-8BB347A6F35C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WinFormPractice_1</RootNamespace>
-    <AssemblyName>WinFormPractice_1</AssemblyName>
+    <RootNamespace>OOP_Practice1</RootNamespace>
+    <AssemblyName>OOP_Practice1</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Student.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

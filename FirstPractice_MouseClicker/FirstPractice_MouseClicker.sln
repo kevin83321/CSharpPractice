@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstPractice_MouseClicker", "FirstPractice_MouseClicker\FirstPractice_MouseClicker.csproj", "{9FA91BD4-6259-4EE8-869A-E5301C013575}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FA91BD4-6259-4EE8-869A-E5301C013575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FA91BD4-6259-4EE8-869A-E5301C013575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FA91BD4-6259-4EE8-869A-E5301C013575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FA91BD4-6259-4EE8-869A-E5301C013575}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {774D343E-76C2-4604-A005-00983757AAF0}
+	EndGlobalSection
+EndGlobal

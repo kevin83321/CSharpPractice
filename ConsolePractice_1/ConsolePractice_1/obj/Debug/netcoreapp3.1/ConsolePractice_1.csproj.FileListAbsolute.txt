@@ -1,0 +1,11 @@
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.exe
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.deps.json
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.runtimeconfig.json
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.runtimeconfig.dev.json
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.dll
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\bin\Debug\netcoreapp3.1\ConsolePractice_1.pdb
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\obj\Debug\netcoreapp3.1\ConsolePractice_1.csprojAssemblyReference.cache
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\obj\Debug\netcoreapp3.1\ConsolePractice_1.AssemblyInfoInputs.cache
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\obj\Debug\netcoreapp3.1\ConsolePractice_1.AssemblyInfo.cs
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\obj\Debug\netcoreapp3.1\ConsolePractice_1.dll
+F:\CSharpPractice\ConsolePractice_1\ConsolePractice_1\obj\Debug\netcoreapp3.1\ConsolePractice_1.pdb

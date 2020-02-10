@@ -8,7 +8,7 @@ namespace Gomoku
 {
     class WhiteChess : Chess
     {
-        public WhiteChess(int x, int y) : base(x, y)
+        public WhiteChess(int x, int y, ChessType chesstype) : base(x, y, chesstype)
         {
             this.Image = Properties.Resources.white;
         }

@@ -10,12 +10,16 @@ namespace Gomoku
     class Board
     {
         private static readonly Point NO_MATCH_NODE = new Point(-1, -1);
+        public static readonly int NODE_COUNT = 9;
 
         private static readonly int offset = 75;
         private static readonly int NODE_RADIUS = 10;
         private static readonly int NODE_DISTANCE = 75;
 
-        private Chess[,] chesses = new Chess[9, 9];
+        private Chess[,] chesses = new Chess[NODE_COUNT, NODE_COUNT];
+
+        private Point lastPlacedNode = NO_MATCH_NODE;
+        public Point LastPlacedNode { get { return lastPlacedNode; } }
         public bool CanBePlaced(int x, int y)
         {
             // TODO:找出最近的節點(Node)
@@ -45,12 +49,14 @@ namespace Gomoku
             if (type == ChessType.BLACK)
             {
                 Point formPos = convertToFormPosition(Node);
-                chesses[Node.X, Node.Y] = new BlackChess(formPos.X, formPos.Y);
+                chesses[Node.X, Node.Y] = new BlackChess(formPos.X, formPos.Y, type);
             }
             else if (type == ChessType.WHITE){
                 Point formPos = convertToFormPosition(Node);
-                chesses[Node.X, Node.Y] = new WhiteChess(formPos.X, formPos.Y);
+                chesses[Node.X, Node.Y] = new WhiteChess(formPos.X, formPos.Y, type);
             }
+            // 紀錄最後下的位子
+            lastPlacedNode = Node;
             return chesses[Node.X, Node.Y];
         }
 
@@ -65,11 +71,11 @@ namespace Gomoku
         private Point findTheClosestNode(int x, int y)
         {
             int NodeX = findTheClosestNode(x);
-            if (NodeX == -1)
+            if (NodeX == -1 || NodeX >= NODE_COUNT)
                 return NO_MATCH_NODE;
             
             int NodeY = findTheClosestNode(y);
-            if (NodeY == -1)
+            if (NodeY == -1 || NodeY >= NODE_COUNT)
                 return NO_MATCH_NODE;
 
             return new Point(NodeX, NodeY);
@@ -90,6 +96,14 @@ namespace Gomoku
                 return quotient + 1;
             else
                 return -1;
+        }
+
+        public ChessType GetChessType(int nodeX, int nodeY)
+        {
+            if (chesses[nodeX, nodeY] != null)
+                return chesses[nodeX, nodeY].GetChessType();
+            else
+                return ChessType.NONE;
         }
     }
 }

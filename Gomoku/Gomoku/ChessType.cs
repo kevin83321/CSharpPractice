@@ -8,6 +8,6 @@ namespace Gomoku
 {
     enum ChessType
     {
-        BLACK, WHITE
+        BLACK, WHITE, NONE
     }
 }

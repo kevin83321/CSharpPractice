@@ -1,0 +1,22 @@
+路徑相關
+
+string currrentName = Path.GetDirectoryName(teststr); // 取得指定目錄名稱
+
+Path.GetFullPath(); // 取得指定檔案的完整路徑
+
+string str = System.Environment.CurrentDirectory; // 取得當前執行檔的目錄
+
+str = System.Windows.Forms.Application.StartupPath; //not work
+
+str = System.IO.Directory.GetCurrentDirectory();// 取得當前執行檔的目錄
+
+str = System.AppDomain.CurrentDomain.BaseDirectory; // 取得當前執行檔的目錄含\
+
+str = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;// 取得當前執行檔的目錄含\
+
+str = System.Windows.Forms.Application.ExecutablePath;
+
+str = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;// 取得當前執行檔的目錄含檔案名稱
+
+CMD相關
+Console.ReadLine(); 讀取cmd中的任何指令以繼續程序

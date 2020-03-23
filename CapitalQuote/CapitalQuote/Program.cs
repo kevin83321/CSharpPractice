@@ -83,6 +83,16 @@ namespace CapitalQuote
             skObj.skQ.OnNotifyQuote += new _ISKQuoteLibEvents_OnNotifyQuoteEventHandler(SKQEvent.OnNotifyQuote);
             skObj.skQ.OnNotifyTicks += new _ISKQuoteLibEvents_OnNotifyTicksEventHandler(SKQEvent.OnNotifyTicks);
             skObj.skQ.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(SKQEvent.OnNotifyStockList);
+            skObj.skQ.OnNotifyHistoryTicks += new _ISKQuoteLibEvents_OnNotifyHistoryTicksEventHandler(SKQEvent.OnNotifyHistoryTicks);
+            skObj.skQ.OnNotifyKLineData += new _ISKQuoteLibEvents_OnNotifyKLineDataEventHandler(SKQEvent.OnNotifyKLineData);
+            skObj.skQ.OnNotifyBest5 += new _ISKQuoteLibEvents_OnNotifyBest5EventHandler(SKQEvent.OnNotifyBest5);
+
+        }
+
+        private static void SubscribeSKOEvent()
+        {
+            skObj.skO.OnAccount += new _ISKOrderLibEvents_OnAccountEventHandler(SKOEvent.OnAccount);
+            skObj.skO.OnFutureRights += new _ISKOrderLibEvents_OnFutureRightsEventHandler(SKOEvent.OnFutureRights);
         }
     }
 }

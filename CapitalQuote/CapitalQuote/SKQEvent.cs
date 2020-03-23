@@ -34,12 +34,14 @@ namespace CapitalQuote
                 connected = ConnectionType.Error;
             }
         }
+        
         public static void OnNotifyQuote(short sMarketNo, short sStockIdx)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
             float Close = Convert.ToSingle(skObj.pstock.nClose / 100.0);
             Console.WriteLine("" + sMarketNo + "," + sStockIdx + "," + skObj.pstock.bstrStockNo + "," + skObj.pstock.bstrStockName + "," + Close);
         }
+        
         public static void OnNotifyTicks(short sMarketNo, short sStockIdx, int nPtr, int nDate, int Timehms, int Timemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulation)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
@@ -57,12 +59,14 @@ namespace CapitalQuote
 
             // TODO transfor Tick information
         }
+        
         public static void OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
         {
             // TODO edit time to Time obj
 
             // TODO transfor Best5 information
         }
+        
         public static void OnNotifyKLineData(string bstrStockNo, string bstrData)
         {
             // TODO transfor kline information

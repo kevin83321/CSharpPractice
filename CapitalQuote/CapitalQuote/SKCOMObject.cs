@@ -19,5 +19,6 @@ namespace CapitalQuote
         public static SKOrderLib skO = new SKOrderLib();
         public static SKSTOCK pstock = new SKSTOCK();
         public static SKFOREIGN pOSstock = new SKFOREIGN();
+        public static SKBEST5 best5 = new SKBEST5();
     }
 }

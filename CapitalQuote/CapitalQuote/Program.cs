@@ -8,17 +8,33 @@ namespace CapitalQuote
 {
     class Program
     {
+        private string user;
+        private string pwd;
+        private EventManager quoteEventManager;
+        private EventManager orderEventManager;
+        private SKREvent skREvent;
+        private SKOEvent skOEvent;
+        private SKQEvent skQEvent;
+        private SKOSQEvent skOSQEvent;
+        private SKOOQEvent skOOQEvent;
+        private RedisConnector redis;
+        private bool listenOrders = true;
+        private bool listenFutureRight = true;
+        private bool listenPosition = true;
+        private bool listenStock = true;
+        private bool listenOSStock = true;
+        private List<string> Stock;
+        private List<string> osStock;
         static void Main(string[] args)
         {
             // RedisConnector redis = new RedisConnector();
-            SubscribesAll();
-            string user = "F128497445";
-            string pwd = "j7629864";
+            Program program = new Program();
+            program.SubscribesAll();
             // SKCOMObject.skC.SK
             string logpath = System.Environment.CurrentDirectory; // 取得當前執行檔的目錄
             skObj.skC.SKCenterLib_SetLogPath(Path.Combine(logpath, "Capital_Log"));
             // Login
-            int m_nCode = skObj.skC.SKCenterLib_Login(user, pwd);
+            int m_nCode = skObj.skC.SKCenterLib_Login(program.user, program.pwd);
             string skmsg = skObj.skC.SKCenterLib_GetReturnCodeMessage(m_nCode);
             Console.WriteLine("Login : " + skmsg);
 
@@ -33,12 +49,12 @@ namespace CapitalQuote
             Console.WriteLine("Initialize Order : " + skmsg);
 
             // ReadCertByID
-            m_nCode = skObj.skO.ReadCertByID(user);
+            m_nCode = skObj.skO.ReadCertByID(program.user);
             skmsg = skObj.skC.SKCenterLib_GetReturnCodeMessage(m_nCode);
             Console.WriteLine("Read Certification : " + skmsg);
 
             //ConnectByID
-            m_nCode = skObj.skR.SKReplyLib_ConnectByID(user);
+            m_nCode = skObj.skR.SKReplyLib_ConnectByID(program.user);
             skmsg = skObj.skC.SKCenterLib_GetReturnCodeMessage(m_nCode);
             Console.WriteLine("Reply Server ConnectByID : " + skmsg);
 
@@ -46,7 +62,7 @@ namespace CapitalQuote
             {
                 Thread.Sleep(1000);
             }
-
+            skObj.skO.GetUserAccount();
             string symbol_list = "TX00,TE00,TF00";
             m_nCode = skObj.skQ.SKQuoteLib_RequestStocks(-1, symbol_list);
             skmsg = skObj.skC.SKCenterLib_GetReturnCodeMessage(m_nCode);
@@ -77,6 +93,61 @@ namespace CapitalQuote
 
             }
         }
+        //private void initialEvents()
+        public Program()
+        {
+            quoteEventManager = new EventManager();
+            orderEventManager = new EventManager();
+            skREvent = new SKREvent(orderEventManager);
+            skOEvent = new SKOEvent(orderEventManager);
+            skQEvent = new SKQEvent(quoteEventManager);
+            skOSQEvent = new SKOSQEvent(quoteEventManager);
+            skOOQEvent = new SKOOQEvent(quoteEventManager);
+
+            user = "F128497445";
+            pwd = "j7629864";
+        }
+
+        private void startAccountThread()
+        {
+            Thread orderthread = new Thread(new ThreadStart(NotifyNewOrder));
+            Thread futureRightthread = new Thread(new ThreadStart(NotifyFutureRights));
+            Thread positionthread = new Thread(new ThreadStart(NotifyPosition));
+            orderthread.Start();
+            futureRightthread.Start();
+            positionthread.Start();
+        }
+
+        private void startQuoteThread()
+        {
+
+        }
+
+        private delegate void someDelegate(dynamic e);
+        private void functions(dynamic e)
+        {
+
+        }
+        private void mainfunction(someDelegate thedelegate)
+        {
+            thedelegate(3);
+        }
+
+        private void addEventListener()
+        {
+            this.quoteEventManager.AddEventListener("QUOTE", sendToRedis);
+        }
+
+        private void addRedisListener()
+        {
+
+        }
+
+        private void sendToRedis(dynamic e)
+        {
+            redis.publish(e.type_, e.data);
+        }
+
         private static void testPriorityQueue()
         {
             dynamic[] e1 = new dynamic[] { 1, 2, 3 };
@@ -98,55 +169,55 @@ namespace CapitalQuote
             if (!queue.empty) Console.WriteLine("third element get from priority queue is " + queue.get()[2]);
             if (!queue.empty) Console.WriteLine("fourth element get from priority queue is " + queue.get()[2]);
         }
-        private static void SubscribeSKQEvent()
+        private void SubscribeSKQEvent()
         {
-            skObj.skQ.OnConnection += new _ISKQuoteLibEvents_OnConnectionEventHandler(SKQEvent.OnConnection);
-            skObj.skQ.OnNotifyQuote += new _ISKQuoteLibEvents_OnNotifyQuoteEventHandler(SKQEvent.OnNotifyQuote);
-            skObj.skQ.OnNotifyTicks += new _ISKQuoteLibEvents_OnNotifyTicksEventHandler(SKQEvent.OnNotifyTicks);
-            skObj.skQ.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(SKQEvent.OnNotifyStockList);
-            skObj.skQ.OnNotifyHistoryTicks += new _ISKQuoteLibEvents_OnNotifyHistoryTicksEventHandler(SKQEvent.OnNotifyHistoryTicks);
-            skObj.skQ.OnNotifyKLineData += new _ISKQuoteLibEvents_OnNotifyKLineDataEventHandler(SKQEvent.OnNotifyKLineData);
-            skObj.skQ.OnNotifyBest5 += new _ISKQuoteLibEvents_OnNotifyBest5EventHandler(SKQEvent.OnNotifyBest5);
+            skObj.skQ.OnConnection += new _ISKQuoteLibEvents_OnConnectionEventHandler(skQEvent.OnConnection);
+            skObj.skQ.OnNotifyQuote += new _ISKQuoteLibEvents_OnNotifyQuoteEventHandler(skQEvent.OnNotifyQuote);
+            skObj.skQ.OnNotifyTicks += new _ISKQuoteLibEvents_OnNotifyTicksEventHandler(skQEvent.OnNotifyTicks);
+            skObj.skQ.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(skQEvent.OnNotifyStockList);
+            skObj.skQ.OnNotifyHistoryTicks += new _ISKQuoteLibEvents_OnNotifyHistoryTicksEventHandler(skQEvent.OnNotifyHistoryTicks);
+            skObj.skQ.OnNotifyKLineData += new _ISKQuoteLibEvents_OnNotifyKLineDataEventHandler(skQEvent.OnNotifyKLineData);
+            skObj.skQ.OnNotifyBest5 += new _ISKQuoteLibEvents_OnNotifyBest5EventHandler(skQEvent.OnNotifyBest5);
         }
 
-        private static void SubscribeSKOEvent()
+        private void SubscribeSKOEvent()
         {
-            skObj.skO.OnAccount += new _ISKOrderLibEvents_OnAccountEventHandler(SKOEvent.OnAccount);
-            skObj.skO.OnFutureRights += new _ISKOrderLibEvents_OnFutureRightsEventHandler(SKOEvent.OnFutureRights);
-            skObj.skO.OnRequestProfitReport += new _ISKOrderLibEvents_OnRequestProfitReportEventHandler(SKOEvent.OnRequestProfitReport);
-            skObj.skO.OnOverSeaFutureRight += new _ISKOrderLibEvents_OnOverSeaFutureRightEventHandler(SKOEvent.OnOverSeaFutureRight);
-            skObj.skO.OnBalanceQuery += new _ISKOrderLibEvents_OnBalanceQueryEventHandler(SKOEvent.OnBalanceQuery);
-            skObj.skO.OnOpenInterest += new _ISKOrderLibEvents_OnOpenInterestEventHandler(SKOEvent.OnOpenInterest);
-            skObj.skO.OnRealBalanceReport += new _ISKOrderLibEvents_OnRealBalanceReportEventHandler(SKOEvent.OnRealBalanceReport);
+            skObj.skO.OnAccount += new _ISKOrderLibEvents_OnAccountEventHandler(skOEvent.OnAccount);
+            skObj.skO.OnFutureRights += new _ISKOrderLibEvents_OnFutureRightsEventHandler(skOEvent.OnFutureRights);
+            skObj.skO.OnRequestProfitReport += new _ISKOrderLibEvents_OnRequestProfitReportEventHandler(skOEvent.OnRequestProfitReport);
+            skObj.skO.OnOverSeaFutureRight += new _ISKOrderLibEvents_OnOverSeaFutureRightEventHandler(skOEvent.OnOverSeaFutureRight);
+            skObj.skO.OnBalanceQuery += new _ISKOrderLibEvents_OnBalanceQueryEventHandler(skOEvent.OnBalanceQuery);
+            skObj.skO.OnOpenInterest += new _ISKOrderLibEvents_OnOpenInterestEventHandler(skOEvent.OnOpenInterest);
+            skObj.skO.OnRealBalanceReport += new _ISKOrderLibEvents_OnRealBalanceReportEventHandler(skOEvent.OnRealBalanceReport);
         }
 
-        private static void SubscribeSKOSQEvent()
+        private void SubscribeSKOSQEvent()
         {
-            skObj.skOSQ.OnConnect += new _ISKOSQuoteLibEvents_OnConnectEventHandler(SKOSQEvent.OnConnect);
-            skObj.skOSQ.OnNotifyQuote += new _ISKOSQuoteLibEvents_OnNotifyQuoteEventHandler(SKOSQEvent.OnNotifyQuote);
-            skObj.skOSQ.OnNotifyBest5 += new _ISKOSQuoteLibEvents_OnNotifyBest5EventHandler(SKOSQEvent.OnNotifyBest5);
-            skObj.skOSQ.OnNotifyTicks += new _ISKOSQuoteLibEvents_OnNotifyTicksEventHandler(SKOSQEvent.OnNotifyTicks);
-            skObj.skOSQ.OnNotifyHistoryTicks += new _ISKOSQuoteLibEvents_OnNotifyHistoryTicksEventHandler(SKOSQEvent.OnNotifyHistoryTicks);
+            skObj.skOSQ.OnConnect += new _ISKOSQuoteLibEvents_OnConnectEventHandler(skOSQEvent.OnConnect);
+            skObj.skOSQ.OnNotifyQuote += new _ISKOSQuoteLibEvents_OnNotifyQuoteEventHandler(skOSQEvent.OnNotifyQuote);
+            skObj.skOSQ.OnNotifyBest5 += new _ISKOSQuoteLibEvents_OnNotifyBest5EventHandler(skOSQEvent.OnNotifyBest5);
+            skObj.skOSQ.OnNotifyTicks += new _ISKOSQuoteLibEvents_OnNotifyTicksEventHandler(skOSQEvent.OnNotifyTicks);
+            skObj.skOSQ.OnNotifyHistoryTicks += new _ISKOSQuoteLibEvents_OnNotifyHistoryTicksEventHandler(skOSQEvent.OnNotifyHistoryTicks);
         }
 
-        private static void SubscribeSKOOQEvent()
+        private void SubscribeSKOOQEvent()
         {
-            skObj.skOOQ.OnConnect += new _ISKOOQuoteLibEvents_OnConnectEventHandler(SKOOQEvent.OnConnect);
-            skObj.skOOQ.OnNotifyQuote += new _ISKOOQuoteLibEvents_OnNotifyQuoteEventHandler(SKOOQEvent.OnNotifyQuote);
-            skObj.skOOQ.OnNotifyBest5 += new _ISKOOQuoteLibEvents_OnNotifyBest5EventHandler(SKOOQEvent.OnNotifyBest5);
-            skObj.skOOQ.OnNotifyTicks += new _ISKOOQuoteLibEvents_OnNotifyTicksEventHandler(SKOOQEvent.OnNotifyTicks);
-            skObj.skOOQ.OnNotifyHistoryTicks += new _ISKOOQuoteLibEvents_OnNotifyHistoryTicksEventHandler(SKOOQEvent.OnNotifyHistoryTicks);
+            skObj.skOOQ.OnConnect += new _ISKOOQuoteLibEvents_OnConnectEventHandler(skOOQEvent.OnConnect);
+            skObj.skOOQ.OnNotifyQuote += new _ISKOOQuoteLibEvents_OnNotifyQuoteEventHandler(skOOQEvent.OnNotifyQuote);
+            skObj.skOOQ.OnNotifyBest5 += new _ISKOOQuoteLibEvents_OnNotifyBest5EventHandler(skOOQEvent.OnNotifyBest5);
+            skObj.skOOQ.OnNotifyTicks += new _ISKOOQuoteLibEvents_OnNotifyTicksEventHandler(skOOQEvent.OnNotifyTicks);
+            skObj.skOOQ.OnNotifyHistoryTicks += new _ISKOOQuoteLibEvents_OnNotifyHistoryTicksEventHandler(skOOQEvent.OnNotifyHistoryTicks);
         }
 
-        private static void SubscribeSKREvent()
+        private void SubscribeSKREvent()
         {
-            skObj.skR.OnConnect += new _ISKReplyLibEvents_OnConnectEventHandler(SKREvent.OnConnect);
-            skObj.skR.OnReplyMessage += new _ISKReplyLibEvents_OnReplyMessageEventHandler(SKREvent.OnReplyMessage);
-            skObj.skR.OnNewData += new _ISKReplyLibEvents_OnNewDataEventHandler(SKREvent.OnNewData);
-            skObj.skR.OnData += new _ISKReplyLibEvents_OnDataEventHandler(SKREvent.OnData);
+            skObj.skR.OnConnect += new _ISKReplyLibEvents_OnConnectEventHandler(skREvent.OnConnect);
+            skObj.skR.OnReplyMessage += new _ISKReplyLibEvents_OnReplyMessageEventHandler(skREvent.OnReplyMessage);
+            skObj.skR.OnNewData += new _ISKReplyLibEvents_OnNewDataEventHandler(skREvent.OnNewData);
+            skObj.skR.OnData += new _ISKReplyLibEvents_OnDataEventHandler(skREvent.OnData);
         }
 
-        private static void SubscribesAll()
+        private void SubscribesAll()
         {
             SubscribeSKQEvent();
             SubscribeSKOEvent();
@@ -154,5 +225,114 @@ namespace CapitalQuote
             SubscribeSKOOQEvent();
             SubscribeSKREvent();
         }
+
+        private void NotifyNewOrder()
+        {
+            while (this.listenOrders)
+            {
+                try 
+                {
+                    var order = this.redis.lpop("Order");
+                    if (order != null)
+                    {
+                        Thread.Sleep(1);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Write error to log file
+                    Thread.Sleep(1);
+                    continue;
+                }
+                    
+            }
+        }
+
+        private void NotifyFutureRights()
+        {
+            while (this.listenFutureRight)
+            {
+                try
+                {
+                    if (this.redis.lpop("FutureRights") != null)
+                    {
+                        int res = skObj.skO.GetFutureRights(this.user, this.skOEvent.myAccount["TF"], 1);
+                        Console.WriteLine($"Request Future Right, {skObj.skC.SKCenterLib_GetReturnCodeMessage(res)}");
+                        Thread.Sleep(1);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Write error to log file
+                    Thread.Sleep(1);
+                    continue;
+                }
+            }
+        }
+
+        private void NotifyPosition()
+        {
+            while (this.listenPosition)
+            {
+                try
+                {
+                    if (this.redis.lpop("OpenInterest") != null)
+                    {
+                        int res = skObj.skO.GetOpenInterest(this.user, this.skOEvent.myAccount["TF"]);
+                        Console.WriteLine($"Request OpenInterest, {skObj.skC.SKCenterLib_GetReturnCodeMessage(res)}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Write error to log file
+                }
+            }
+        }
+
+        private void NotifyStockFromRedis()
+        {
+            while (this.listenStock)
+            {
+                try
+                {
+                    List<string> new_stock = this.redis.lpop("Requests_stock");
+                    if (new_stock != null)
+                    {
+                        //this.addStocks();
+                        Thread.Sleep(1);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //write error to log file
+                    Thread.Sleep(1);
+                    continue;
+                }
+            }
+        }
+
+        private void NotifyOSStockFromRedis()
+        {
+            while (this.listenOSStock)
+            {
+                try
+                {
+                    List<string> new_stock = this.redis.lpop("Requests_os_stock");
+                    if (new_stock != null)
+                    {
+                        //this.addOSStocks();
+                        Thread.Sleep(1);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //write error to log file
+                    Thread.Sleep(1);
+                    continue;
+                }
+            }
+        }
+
+
     }
 }

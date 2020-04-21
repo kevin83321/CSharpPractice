@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CapitalQuote.Events;
 
 namespace CapitalQuote
 {
     class SKOSQEvent
     {
         public static ConnectionType osq_con = ConnectionType.Not;
-        public static void OnConnect(int nKind, int nCode)
+
+        private EventManager eventManager;
+        public SKOSQEvent(EventManager eventManager)
+        {
+            this.eventManager = eventManager;
+        }
+        public void OnConnect(int nKind, int nCode)
         {
             string strMsg = "OverSea Future ";
             if (nKind == 3001)
@@ -31,9 +38,10 @@ namespace CapitalQuote
                 osq_con = ConnectionType.Error;
             }
             Console.WriteLine(strMsg);
+            this.eventManager.put(new ConnectionEvent(osq_con, "OS"));
         }
 
-        public static void OnNotifyQuote(short sIndex)
+        public void OnNotifyQuote(short sIndex)
         {
             skObj.skOSQ.SKOSQuoteLib_GetStockByIndex(sIndex, skObj.pOSstock);
             string dt = DateTime.Now.ToString();
@@ -46,9 +54,10 @@ namespace CapitalQuote
                 {"Close", skObj.pOSstock.nClose},
                 {"Qty", skObj.pOSstock.nTickQty}
             };
+            this.eventManager.put(new QuoteEvent(q));
         }
 
-        public static void OnNotifyBest5(short sStockidx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5
+        public void OnNotifyBest5(short sStockidx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5
                                         , int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5)
         {
             skObj.skOSQ.SKOSQuoteLib_GetStockByIndex(sStockidx, skObj.pOSstock);
@@ -82,9 +91,10 @@ namespace CapitalQuote
                 {"BestAsk5", nBestAsk5 / denominator},
                 {"BestAskQty5", nBestAskQty5},
             };
+            this.eventManager.put(new Best5Event(best5));
         }
     
-        public static void OnNotifyTicks(short sIndex, int nPtr, int nDate, int nTime, int nClose, int nQty)
+        public void OnNotifyTicks(short sIndex, int nPtr, int nDate, int nTime, int nClose, int nQty)
         {
             skObj.skOSQ.SKOSQuoteLib_GetStockByIndex(sIndex, skObj.pOSstock);
             double denominator = Math.Pow(10, skObj.pOSstock.sDecimal);
@@ -99,9 +109,10 @@ namespace CapitalQuote
                 {"Close", nClose / denominator},
                 {"Qty", nQty},
             };
+            this.eventManager.put(new TickEvent(tick));
         }
 
-        public static void OnNotifyHistoryTicks(short sIndex, int nPtr, int nDate, int nTime, int nClose, int nQty)
+        public void OnNotifyHistoryTicks(short sIndex, int nPtr, int nDate, int nTime, int nClose, int nQty)
         {
             skObj.skOSQ.SKOSQuoteLib_GetStockByIndex(sIndex, skObj.pOSstock);
             double denominator = Math.Pow(10, skObj.pOSstock.sDecimal);
@@ -116,7 +127,7 @@ namespace CapitalQuote
                 {"Close", nClose / denominator},
                 {"Qty", nQty},
             };
+            this.eventManager.put(new HistoryTickEvent(tick));
         }
-
     }
 }

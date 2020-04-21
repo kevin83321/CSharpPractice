@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CapitalQuote.Events;
 
 namespace CapitalQuote
 {
@@ -54,18 +55,23 @@ namespace CapitalQuote
         private static string[] fotype = new string[] { "TF", "TO"};
         // 海外選擇權與期貨-類別
         private static string[] OverSeatype = new string[] { "OS", "OO" };
-        public static void OnConnect(string bstrUserID, int nErrorCode)
+        private EventManager eventManager;
+        public SKREvent(EventManager eventManager)
+        {
+            this.eventManager = eventManager;
+        }
+        public void OnConnect(string bstrUserID, int nErrorCode)
         {
             Console.WriteLine(bstrUserID + " " + nErrorCode);
         }
 
-        public static void OnReplyMessage(string bstrUserID, string bstrMessage)
+        public void OnReplyMessage(string bstrUserID, string bstrMessage)
         {
             Console.WriteLine(bstrUserID + " " + bstrMessage);
         }
         
         // 下單回傳New
-        public static void OnNewData(string bstrUserID, string bstrData)
+        public void OnNewData(string bstrUserID, string bstrData)
         {
             string[] data = bstrData.Split(",");
             string bs = "";
@@ -134,9 +140,10 @@ namespace CapitalQuote
                 {"CallPut", data[42]},
                 {"OrderError", data[43]}
             };
+            eventManager.put(new NewDataEvent(newdata));
         }
         // 下單回傳
-        public static void OnData(string bstrUserID, string bstrData)
+        public void OnData(string bstrUserID, string bstrData)
         {
             string[] data = bstrData.Split(",");
             string bs = "";

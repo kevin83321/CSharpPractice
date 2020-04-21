@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CapitalQuote.Events;
 
 namespace CapitalQuote
 {
@@ -13,7 +14,13 @@ namespace CapitalQuote
             {0,"STOCK" }, {1,"STOCK" }, {2,"FUTURE" }, {3,"OPTION" }, {4,"OTC" }, {9999,"END" } };
 
         public static readonly Dictionary<string, string> typeDict = new Dictionary<string, string> { };
-        public static void OnConnection(int nKind, int nCode)
+
+        private EventManager eventManager;
+        public SKQEvent(EventManager eventManager)
+        {
+            this.eventManager = eventManager;
+        }
+        public void OnConnection(int nKind, int nCode)
         {
             string strMsg = "";
             if (nKind == 3001)
@@ -40,9 +47,10 @@ namespace CapitalQuote
                 connected = ConnectionType.Error;
             }
             Console.WriteLine(strMsg);
+            this.eventManager.put(new ConnectionEvent(connected, ""));
         }
         
-        public static void OnNotifyQuote(short sMarketNo, short sStockIdx)
+        public void OnNotifyQuote(short sMarketNo, short sStockIdx)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
             skObj.skQ.SKQuoteLib_GetBest5(sMarketNo, sStockIdx, ref skObj.best5);
@@ -72,6 +80,7 @@ namespace CapitalQuote
                 {"Down", skObj.pstock.nDown / 100.0},
                 {"Simulate", skObj.pstock.nSimulate}
             };
+            this.eventManager.put(new QuoteEvent(quote));
 
             Dictionary<string, dynamic> best5 = new Dictionary<string, dynamic>
             {
@@ -101,13 +110,14 @@ namespace CapitalQuote
                 {"BestAsk5", skObj.best5.nAsk5 / 100.0},
                 {"BestAskQty5", skObj.best5.nAskQty5},
             };
+            this.eventManager.put(new Best5Event(best5));
             //foreach (KeyValuePair<string, dynamic> kvp in quote)
             //   Console.WriteLine("{0}:{1}", kvp.Key, kvp.Value);
             //Console.WriteLine("" + quote);
             //Console.WriteLine("" + sMarketNo + "," + sStockIdx + "," + skObj.pstock.bstrStockNo + "," + skObj.pstock.bstrStockName + "," + Close + "," + dt);
         }
         
-        public static void OnNotifyTicks(short sMarketNo, short sStockIdx, int nPtr, int nDate, int Timehms, int Timemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        public void OnNotifyTicks(short sMarketNo, short sStockIdx, int nPtr, int nDate, int Timehms, int Timemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
             string t = TransforFunc.timeToStr(Timehms, Timemillismicros);
@@ -125,11 +135,12 @@ namespace CapitalQuote
                 {"Pre-Close", skObj.pstock.nRef / 100.0},
                 {"Simulate", nSimulate}
             };
+            this.eventManager.put(new TickEvent(tick));
             //Console.WriteLine("" + sMarketNo + "," + sStockIdx + "," + skObj.pstock.bstrStockNo + "," + skObj.pstock.bstrStockName + "," + Close + "," + dt);
-            
+
         }
 
-        public static void OnNotifyHistoryTicks(short sMarketNo, short sStockIdx, int nPtr, int nDate, int Timehms, int Timemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        public void OnNotifyHistoryTicks(short sMarketNo, short sStockIdx, int nPtr, int nDate, int Timehms, int Timemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
             string t = TransforFunc.timeToStr(Timehms, Timemillismicros);
@@ -147,9 +158,10 @@ namespace CapitalQuote
                 {"Pre-Close", skObj.pstock.nRef / 100.0},
                 {"Simulate", nSimulate}
             };
+            this.eventManager.put(new HistoryTickEvent(tick));
         }
         
-        public static void OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
+        public void OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
         {
             skObj.skQ.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref skObj.pstock);
             double denominator = Math.Pow(10, skObj.pOSstock.sDecimal);
@@ -182,15 +194,16 @@ namespace CapitalQuote
                 {"BestAsk5", nBestAsk5 / 100.0},
                 {"BestAskQty5", nBestAskQty5},
             };
+            this.eventManager.put(new Best5Event(best5));
         }
         
-        public static void OnNotifyKLineData(string bstrStockNo, string bstrData)
+        public void OnNotifyKLineData(string bstrStockNo, string bstrData)
         {
             Console.WriteLine("Origin Kline " + bstrData + "" + bstrStockNo);
             // TODO transfor kline information
         }
 
-        public static void OnNotifyStockList(short sMarketNo, string bstrStockData)
+        public void OnNotifyStockList(short sMarketNo, string bstrStockData)
         {
             foreach (var stock in bstrStockData.Split(";"))
                 if (marketType.ContainsKey(sMarketNo))

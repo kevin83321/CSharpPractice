@@ -3,20 +3,27 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CapitalQuote.Events;
 
 namespace CapitalQuote
 {
     class SKOEvent
     {
-        public static Dictionary<string, string> myAccount = new Dictionary<string, string> {};
+        public Dictionary<string, string> myAccount = new Dictionary<string, string> {};
 
-        public static void OnAccount(string sLoginID, string sAccountData)
+        private EventManager eventManager;
+        public SKOEvent(EventManager eventManager)
+        {
+            this.eventManager = eventManager;
+        }
+        public void OnAccount(string sLoginID, string sAccountData)
         {
             string[] Accounts = sAccountData.Split(",");
-            myAccount.Add(Accounts[1] + Accounts[3], Accounts[0]);
+            myAccount.Add(Accounts[0], Accounts[1] + Accounts[3]);
+            Console.WriteLine($"{Accounts[1] + Accounts[3]}, {Accounts[0]}");
         }
         
-        public static void OnFutureRights(string bstrData)
+        public void OnFutureRights(string bstrData)
         {
             if (bstrData.StartsWith("##") != true)
             {
@@ -63,10 +70,11 @@ namespace CapitalQuote
                     {"期貨到期損益", Convert.ToSingle(data[37]) / 100 },
                     {"加收保證金", Convert.ToSingle(data[38]) / 100 }
                 };
+                this.eventManager.put(new FutureRightsEvent(futurerights));
             }
         }
 
-        public static void OnRequestProfitReport(string bstrData)
+        public void OnRequestProfitReport(string bstrData)
         {
             // 證券即時損益試算
             // Call GetRequestProfitReport(bstrLogInID, bstrAccount)
@@ -98,10 +106,11 @@ namespace CapitalQuote
                     { "試算報酬率",  (data[19] != "--") ? Convert.ToSingle(data[19]) : 0.0},
                     { "未知成本股數",  data[20]},
                 };
+                this.eventManager.put(new ProfitReportEvent(profitreport));
             }
         }
 
-        public static void OnOverSeaFutureRight(string bstrData)
+        public void OnOverSeaFutureRight(string bstrData)
         {
             // 證券即時損益試算
             // Call GetRequestProfitReport(bstrLogInID, bstrAccount)
@@ -145,12 +154,12 @@ namespace CapitalQuote
                         { "固定保證金",  data[30]},
                         { "變動保證金",  data[31]},
                     };
+                    this.eventManager.put(new OSFutureRightsEvent(osfutureRights));
                 }
-
             }
         }
 
-        public static void OnBalanceQuery(string bstrData)
+        public void OnBalanceQuery(string bstrData)
         {
             if (bstrData.StartsWith("M003"))
             {
@@ -171,10 +180,11 @@ namespace CapitalQuote
                     {"保證金", data[7] },
                     {"擔保品", data[8] },
                 };
+                this.eventManager.put(new QueryEvent(query));
             }
         }
 
-        public static void OnOpenInterest(string bstrData)
+        public void OnOpenInterest(string bstrData)
         {
             if (bstrData.StartsWith("M003"))
             {
@@ -200,10 +210,11 @@ namespace CapitalQuote
                     {"單口手續費", Convert.ToSingle(data[8]) },
                     {"交易稅(萬分之X)", Convert.ToSingle(data[9]) },
                 };
+                this.eventManager.put(new OpenInterestEvent(oi));
             }
         }
 
-        public static void OnRealBalanceReport(string bstrData)
+        public void OnRealBalanceReport(string bstrData)
         {
             if (bstrData.StartsWith("##") != true)
             {
@@ -231,6 +242,7 @@ namespace CapitalQuote
                     {"即時庫存", Convert.ToSingle(data[14]) },
                     {"即時個股維持率", Convert.ToSingle(data[15]) },
                 };
+                this.eventManager.put(new RealBalanceReportEvent(rbr));
             }
         }
     }
